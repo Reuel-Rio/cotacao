@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Cotação</title>
+</head>
+<body>
+    <h1>Criar Cotação</h1>
+
+    <form action="/cotacao/criar" method="post">
+        <label for="nomeCotacao">Nome da Cotação:</label>
+        <input type="text" id="nomeCotacao" name="nomeCotacao" required><br><br>
+
+        <label for="produto">Produto:</label>
+        <input type="text" id="produto" name="produto" required><br><br>
+
+        <button type="submit">Salvar Cotação</button>
+    </form>
+
+    <br>
+
+    <form action="/cotacao/gerarExcel" method="post">
+        <label for="nomeRepresentante">Nome do Representante:</label>
+        <input type="text" id="nomeRepresentante" name="nomeRepresentante" required><br><br>
+
+        <label for="pedidoMinimo">Pedido Mínimo:</label>
+        <input type="number" id="pedidoMinimo" name="pedidoMinimo" required><br><br>
+
+        <button type="submit">Gerar Excel</button>
+    </form>
+
+    <br>
+
+    <form action="/cotacao/uploadExcel" method="post" enctype="multipart/form-data">
+        <label for="file">Enviar Arquivo Excel:</label>
+        <input type="file" id="file" name="file" accept=".xlsx" required><br><br>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <br>
+    <span th:if="${sucesso}" th:text="${sucesso}"></span>
+    <span th:if="${erro}" th:text="${erro}"></span>
+</body>
+</html>

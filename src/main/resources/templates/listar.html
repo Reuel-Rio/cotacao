@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cotações Ativas</title>
+</head>
+<body>
+    <h1>Cotações Ativas</h1>
+    <a href="/cotacoes/criar">Criar Nova Cotação</a>  <!-- Link para a criação de nova cotação -->
+    <table>
+        <thead>
+            <tr>
+                <th>Nome da Cotação</th>
+                <th>Status</th>
+                <th>Data de Criação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="cotacao : ${cotacoes}">
+                <td th:text="${cotacao.nome}"></td>
+                <td th:text="${cotacao.status}"></td>
+                <td th:text="${cotacao.dataCriacao}"></td>
+                <td>
+                    <a th:href="@{/cotacoes/{id}(id=${cotacao.id})}">Ver Detalhes</a>
+                    <a th:href="@{/cotacoes/consolidar/{id}(id=${cotacao.id})}">Consolidar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
