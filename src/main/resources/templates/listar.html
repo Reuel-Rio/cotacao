@@ -1,47 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Listagem de Cotações</title>
+    <title>Listar Cotações</title>
     <script>
         async function carregarCotacoes() {
-            const response = await fetch('/cotacoes');
-            const cotacoes = await response.json();
+            // Fazendo a requisição para o endpoint que retorna o JSON
+            const response = await fetch('/listar');
+            const cotacoes = await response.json();  // Converte a resposta para JSON
 
+            // Selecionando a tabela onde as cotações serão exibidas
             const tabela = document.getElementById('tabela-cotacoes');
-            tabela.innerHTML = ''; // Limpa a tabela antes de preencher
+            tabela.innerHTML = '';  // Limpa a tabela antes de adicionar as cotações
 
+            // Preenchendo a tabela com os dados das cotações
             cotacoes.forEach(cotacao => {
-                const row = tabela.insertRow();
-                row.innerHTML = `
-                    <td>${cotacao.nome}</td>
-                    <td>${cotacao.status}</td>
-                    <td>${cotacao.dataCriacao}</td>
-                    <td>
-                        <button onclick="visualizarCotacao(${cotacao.id})">Detalhes</button>
-                    </td>
-                `;
+                const row = tabela.insertRow();  // Cria uma nova linha na tabela
+
+                // Adiciona as células à linha
+                const cellNome = row.insertCell(0);
+                cellNome.textContent = cotacao.nome;
+
+                const cellStatus = row.insertCell(1);
+                cellStatus.textContent = cotacao.status;
+
+                const cellDataCriacao = row.insertCell(2);
+                cellDataCriacao.textContent = cotacao.dataCriacao;
             });
         }
 
-        function visualizarCotacao(id) {
-            window.location.href = `/cotacoes/?id=${id}`;
-        }
-
+        // Carrega as cotações assim que o conteúdo da página for carregado
         document.addEventListener('DOMContentLoaded', carregarCotacoes);
     </script>
 </head>
 <body>
-    <h1>Listagem de Cotações</h1>
+    <h1>Cotações Ativas</h1>
+
+    <!-- Tabela para exibir as cotações -->
     <table border="1">
         <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Status</th>
-            <th>Data de Criação</th>
-            <th>Ações</th>
-        </tr>
+            <tr>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>Data de Criação</th>
+            </tr>
         </thead>
-        <tbody id="tabela-cotacoes"></tbody>
+        <tbody id="tabela-cotacoes">
+            <!-- As cotações serão inseridas aqui via JavaScript -->
+        </tbody>
     </table>
 
     <button onclick="window.location.href='/cotacoes/criar'">Criar Nova Cotação</button>

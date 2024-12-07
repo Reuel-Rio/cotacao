@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/cotacao")
+@RequestMapping
 public class CotacaoController {
 
     @Autowired
@@ -40,10 +40,20 @@ public class CotacaoController {
     }
     
     @GetMapping("/listar")
+    @ResponseBody
+    public List<Cotacao> listarCotacoes() {
+        System.out.println("LISTAR");
+        return cotacaoService.listarCotasAtivas();  // Retorna a lista de cotações em formato JSON
+    }
+
+    
+    /**
+    @GetMapping("/listar")
     public List<Cotacao> listarCotacoes() {
     	System.out.println("LISTAR");
         return cotacaoService.listarCotasAtivas();
     }
+    */
     
     @GetMapping("/cotacoes/{id}")
     public String visualizarCotacao(@PathVariable Long id, Model model) {
