@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cotacao.model.Cotacao;
+import com.cotacao.repositories.CotacaoRepository;
 import com.cotacao.service.CotacaoService;
 import com.cotacao.service.ExcelService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/cotacao")
@@ -22,6 +24,9 @@ public class CotacaoController {
 
     @Autowired
     private ExcelService excelService;
+    
+    @Autowired
+    private CotacaoRepository cotacaoRepository;
 
     // Página para o lojista criar a cotação
     @GetMapping("/criar")
@@ -30,14 +35,25 @@ public class CotacaoController {
         return "criar-cotacao";
     }
 
+    public CotacaoController(CotacaoService cotacaoService) {
+        this.cotacaoService = cotacaoService;
+    }
+    
+    @GetMapping("/listar")
+    public List<Cotacao> listarCotacoes() {
+    	System.out.println("LISTAR");
+        return cotacaoService.listarCotasAtivas();
+    }
+    
     @GetMapping("/cotacoes/{id}")
-    public String visualizarCotacao(@PathVariable("id") Long id, Model model) {
-        Cotacao cotacao = cotacaoService.buscarCotacaoPorId(id);
-        if (cotacao != null) {
-            model.addAttribute("cotacao", cotacao);
-            return "cotacoes/mostrar";  // Página para visualizar os detalhes da cotação
+    public String visualizarCotacao(@PathVariable Long id, Model model) {
+        Optional<Cotacao> cotacao = cotacaoRepository.findById(id);
+        if (cotacao.isPresent()) {
+            model.addAttribute("cotacao", cotacao.get());
+            return "mostrar";
         } else {
-            return "redirect:/cotacoes/listar";  // Redireciona para a listagem de cotações se a cotação não for encontrada
+            // Redireciona ou lança erro se a cotação não for encontrada
+            return "redirect:/cotacoes/listar";
         }
     }
     

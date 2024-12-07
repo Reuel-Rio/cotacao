@@ -1,31 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Cotações Ativas</title>
+    <title>Listagem de Cotações</title>
+    <script>
+        async function carregarCotacoes() {
+            const response = await fetch('/cotacoes');
+            const cotacoes = await response.json();
+
+            const tabela = document.getElementById('tabela-cotacoes');
+            tabela.innerHTML = ''; // Limpa a tabela antes de preencher
+
+            cotacoes.forEach(cotacao => {
+                const row = tabela.insertRow();
+                row.innerHTML = `
+                    <td>${cotacao.nome}</td>
+                    <td>${cotacao.status}</td>
+                    <td>${cotacao.dataCriacao}</td>
+                    <td>
+                        <button onclick="visualizarCotacao(${cotacao.id})">Detalhes</button>
+                    </td>
+                `;
+            });
+        }
+
+        function visualizarCotacao(id) {
+            window.location.href = `/cotacoes/?id=${id}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', carregarCotacoes);
+    </script>
 </head>
 <body>
-    <h1>Cotações Ativas</h1>
-    <a href="/cotacoes/criar">Criar Nova Cotação</a>  <!-- Link para a criação de nova cotação -->
-    <table>
+    <h1>Listagem de Cotações</h1>
+    <table border="1">
         <thead>
-            <tr>
-                <th>Nome da Cotação</th>
-                <th>Status</th>
-                <th>Data de Criação</th>
-                <th>Ações</th>
-            </tr>
+        <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Data de Criação</th>
+            <th>Ações</th>
+        </tr>
         </thead>
-        <tbody>
-            <tr th:each="cotacao : ${cotacoes}">
-                <td th:text="${cotacao.nome}"></td>
-                <td th:text="${cotacao.status}"></td>
-                <td th:text="${cotacao.dataCriacao}"></td>
-                <td>
-                    <a th:href="@{/cotacoes/{id}(id=${cotacao.id})}">Ver Detalhes</a>
-                    <a th:href="@{/cotacoes/consolidar/{id}(id=${cotacao.id})}">Consolidar</a>
-                </td>
-            </tr>
-        </tbody>
+        <tbody id="tabela-cotacoes"></tbody>
     </table>
+
+    <button onclick="window.location.href='/cotacoes/criar'">Criar Nova Cotação</button>
 </body>
 </html>

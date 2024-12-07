@@ -2,18 +2,45 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Criar Cotação</title>
+    <script>
+        async function enviarCotacao() {
+            const nomeCotacao = document.getElementById('nomeCotacao').value;
+            const nomesProdutos = document.getElementById('nomesProdutos').value.split(',');
+
+            const cotacao = {
+                nomeCotacao: nomeCotacao.trim(),
+                nomesProdutos: nomesProdutos.map(produto => produto.trim())
+            };
+
+            const response = await fetch('/cotacoes/criar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cotacao)
+            });
+
+            if (response.ok) {
+                alert('Cotação criada com sucesso!');
+                window.location.href = '/cotacoes/listar';
+            } else {
+                alert('Erro ao criar a cotação. Tente novamente.');
+            }
+        }
+    </script>
 </head>
 <body>
     <h1>Criar Nova Cotação</h1>
-    <form action="#" th:action="@{/cotacoes/criar}" method="post">
-        <label for="nomeDaLista">Nome da Cotação:</label>
-        <input type="text" id="nomeDaLista" name="nomeDaLista" required/><br><br>
+    <form onsubmit="event.preventDefault(); enviarCotacao();">
+        <label for="nomeCotacao">Nome da Cotação:</label>
+        <input type="text" id="nomeCotacao" required><br><br>
 
-        <label for="produtos">Produtos:</label>
-        <input type="text" id="produtos" name="produtos" placeholder="Produto 1, Produto 2, ..." required/><br><br>
+        <label for="nomesProdutos">Produtos (separados por vírgula):</label>
+        <textarea id="nomesProdutos" rows="4" cols="50" required></textarea><br><br>
 
         <button type="submit">Criar Cotação</button>
     </form>
-    <a href="/cotacoes/listar">Voltar para Listagem</a> <!-- Link de volta para a listagem de cotações -->
+
+    <button onclick="window.location.href='/cotacoes/listar'">Voltar</button>
 </body>
 </html>

@@ -1,46 +1,75 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Cotação</title>
+    <title>Nova Cotação</title>
+    <script>
+        async function carregarProdutos() {
+            const response = await fetch('/produtos');
+            const produtos = await response.json();
+
+            const selectProdutos = document.getElementById('selectProdutos');
+            produtos.forEach(produto => {
+                const option = document.createElement('option');
+                option.value = produto.id;
+                option.textContent = produto.nome;
+                selectProdutos.appendChild(option);
+            });
+        }
+
+        async function adicionarProduto() {
+            const selectProdutos = document.getElementById('selectProdutos');
+            const produtoSelecionado = selectProdutos.options[selectProdutos.selectedIndex].text;
+
+            const lista = document.getElementById('listaProdutos');
+            const item = document.createElement('li');
+            item.textContent = produtoSelecionado;
+            lista.appendChild(item);
+        }
+
+        async function enviarCotacao() {
+            const nomeCotacao = document.getElementById('nomeCotacao').value;
+            const produtos = Array.from(document.getElementById('listaProdutos').children).map(item => item.textContent);
+
+            const cotacao = {
+                nomeCotacao: nomeCotacao.trim(),
+                nomesProdutos: produtos.map(produto => produto.trim())
+            };
+
+            const response = await fetch('/cotacoes/criar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cotacao)
+            });
+
+            if (response.ok) {
+                alert('Cotação criada com sucesso!');
+                window.location.href = '/cotacoes/listar';
+            } else {
+                alert('Erro ao criar a cotação. Tente novamente.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', carregarProdutos);
+    </script>
 </head>
 <body>
-    <h1>Criar Cotação</h1>
-
-    <form action="/cotacao/criar" method="post">
+    <h1>Nova Cotação</h1>
+    <form onsubmit="event.preventDefault(); enviarCotacao();">
         <label for="nomeCotacao">Nome da Cotação:</label>
-        <input type="text" id="nomeCotacao" name="nomeCotacao" required><br><br>
+        <input type="text" id="nomeCotacao" required><br><br>
 
-        <label for="produto">Produto:</label>
-        <input type="text" id="produto" name="produto" required><br><br>
+        <label for="selectProdutos">Selecione um Produto:</label>
+        <select id="selectProdutos"></select>
+        <button type="button" onclick="adicionarProduto()">Adicionar Produto</button><br><br>
+
+        <h2>Produtos Selecionados:</h2>
+        <ul id="listaProdutos"></ul>
 
         <button type="submit">Salvar Cotação</button>
     </form>
 
-    <br>
-
-    <form action="/cotacao/gerarExcel" method="post">
-        <label for="nomeRepresentante">Nome do Representante:</label>
-        <input type="text" id="nomeRepresentante" name="nomeRepresentante" required><br><br>
-
-        <label for="pedidoMinimo">Pedido Mínimo:</label>
-        <input type="number" id="pedidoMinimo" name="pedidoMinimo" required><br><br>
-
-        <button type="submit">Gerar Excel</button>
-    </form>
-
-    <br>
-
-    <form action="/cotacao/uploadExcel" method="post" enctype="multipart/form-data">
-        <label for="file">Enviar Arquivo Excel:</label>
-        <input type="file" id="file" name="file" accept=".xlsx" required><br><br>
-
-        <button type="submit">Enviar</button>
-    </form>
-
-    <br>
-    <span th:if="${sucesso}" th:text="${sucesso}"></span>
-    <span th:if="${erro}" th:text="${erro}"></span>
+    <button onclick="window.location.href='/cotacoes/listar'">Voltar</button>
 </body>
 </html>
