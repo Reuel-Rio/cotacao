@@ -1,5 +1,7 @@
 package com.cotacao.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,4 +19,7 @@ public class Representante {
 
     @ManyToOne
     private Cotacao cotacao;
+    
+    @OneToMany(mappedBy = "representante", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CotacaoProduto> cotacoes;
 }

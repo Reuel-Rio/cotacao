@@ -18,4 +18,8 @@ public interface CotacaoProdutoRepository extends JpaRepository<CotacaoProduto, 
     
     @Query("SELECT c FROM Cotacao c JOIN FETCH c.cotacaoProdutos WHERE c.status = :status")
     List<Cotacao> findAllWithCotacaoProdutos(@Param("status") Status status);
+    
+    @Query("SELECT cp FROM CotacaoProduto cp WHERE cp.cotacao.id = :representanteId")
+    List<CotacaoProduto> findByRepresentanteId(@Param("representanteId") Long representanteId);
+
 }

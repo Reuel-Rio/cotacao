@@ -6,8 +6,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cotacao.DTO.CotacaoDTO;
 import com.cotacao.model.Cotacao;
+import com.cotacao.model.CotacaoProduto;
 import com.cotacao.repositories.CotacaoRepository;
+import com.cotacao.service.CotacaoProdutoService;
 import com.cotacao.service.CotacaoService;
 import com.cotacao.service.ExcelService;
 
@@ -27,6 +30,9 @@ public class CotacaoController {
     
     @Autowired
     private CotacaoRepository cotacaoRepository;
+    
+    @Autowired
+    private CotacaoProdutoService cotacaoProdutoService;
 
     // Página para o lojista criar a cotação
     @GetMapping("/criar")
@@ -39,6 +45,14 @@ public class CotacaoController {
         this.cotacaoService = cotacaoService;
     }
     
+    @GetMapping("/representante/{id}")
+    public List<CotacaoProduto> listarCotacoesPorRepresentante(@PathVariable("id") Long representanteId) {
+        System.out.println("Listando cotações para o representante com ID: " + representanteId);
+        return cotacaoProdutoService.buscarPorRepresentante(representanteId);
+    }
+
+
+    
     @GetMapping("/listar")
     @ResponseBody
     public List<Cotacao> listarCotacoes() {
@@ -46,14 +60,6 @@ public class CotacaoController {
         return cotacaoService.listarCotasAtivas();  // Retorna a lista de cotações em formato JSON
     }
 
-    
-    /**
-    @GetMapping("/listar")
-    public List<Cotacao> listarCotacoes() {
-    	System.out.println("LISTAR");
-        return cotacaoService.listarCotasAtivas();
-    }
-    */
     
     @GetMapping("/cotacoes/{id}")
     public String visualizarCotacao(@PathVariable Long id, Model model) {
@@ -69,14 +75,29 @@ public class CotacaoController {
     
     // Submeter os produtos para cotação
     @PostMapping("/criar")
-    public String submeterCotacao(@RequestParam("nomeCotacao") String nomeCotacao,
-                                   @RequestParam("nomesProdutos") List<String> nomesProdutos, 
-                                   Model model) {
-        Cotacao novaCotacao = cotacaoService.criarCotacao(nomeCotacao, nomesProdutos);
-        model.addAttribute("sucesso", "Cotação salva com sucesso!");
-        return "redirect:/cotacao/criar";
+    public String submeterCotacao(
+            @RequestParam("nomeCotacao") String nomeCotacao,
+            @RequestParam("nomesProdutos") String nomesProdutos,
+            Model model) {
+        try {
+            List<String> listaProdutos = List.of(nomesProdutos.split(","));
+            cotacaoService.criarCotacao(nomeCotacao, listaProdutos); // Delegar ao serviço
+            model.addAttribute("sucesso", "Cotação criada com sucesso!");
+        } catch (Exception e) {
+            model.addAttribute("erro", "Erro ao criar a cotação: " + e.getMessage());
+        }
+        return "redirect:/cotacoes/listar";
     }
 
+    /**
+    @PostMapping("/criar")
+    @ResponseBody
+    public String submeterCotacaoComJson(@RequestBody CotacaoDTO cotacaoDTO) {
+        cotacaoService.criarCotacao(cotacaoDTO.getNomeCotacao(), cotacaoDTO.getNomesProdutos());
+        return "Cotação criada com sucesso!";
+    }
+*/
+    
     // Gerar o arquivo Excel para o representante preencher
     @PostMapping("/gerarExcel")
     public String gerarExcel(@RequestParam("nomeCotacao") String nomeCotacao,

@@ -1,54 +1,164 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Listar Cotações</title>
-    <script>
-        async function carregarCotacoes() {
-            // Fazendo a requisição para o endpoint que retorna o JSON
-            const response = await fetch('/listar');
-            const cotacoes = await response.json();  // Converte a resposta para JSON
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Cotações</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+	<script>
+	        document.addEventListener("DOMContentLoaded", function () {
+	            // Carregar as cotações na tabela inicial
+	            fetch("/listar")
+	                .then(response => response.json())
+	                .then(data => {
+	                    const tabela = document.getElementById("tabela-cotacoes");
+	                    data.forEach(cotacao => {
+	                        const row = document.createElement("tr");
 
-            // Selecionando a tabela onde as cotações serão exibidas
-            const tabela = document.getElementById('tabela-cotacoes');
-            tabela.innerHTML = '';  // Limpa a tabela antes de adicionar as cotações
+	                        // Coluna Nome com link
+	                        const nomeCell = document.createElement("td");
+	                        const link = document.createElement("a");
+	                        link.href = "#";
+	                        link.textContent = cotacao.nome;
+	                        link.addEventListener("click", function () {
+	                            exibirCotacoesPorRepresentante(cotacao.id, cotacao.nome);
+	                        });
+	                        nomeCell.appendChild(link);
+	                        row.appendChild(nomeCell);
 
-            // Preenchendo a tabela com os dados das cotações
-            cotacoes.forEach(cotacao => {
-                const row = tabela.insertRow();  // Cria uma nova linha na tabela
+	                        // Coluna Status
+	                        const statusCell = document.createElement("td");
+	                        statusCell.textContent = cotacao.status;
+	                        row.appendChild(statusCell);
 
-                // Adiciona as células à linha
-                const cellNome = row.insertCell(0);
-                cellNome.textContent = cotacao.nome;
+	                        // Coluna Data de Criação
+	                        const dataCell = document.createElement("td");
+	                        dataCell.textContent = cotacao.dataCriacao;
+	                        row.appendChild(dataCell);
 
-                const cellStatus = row.insertCell(1);
-                cellStatus.textContent = cotacao.status;
+	                        tabela.appendChild(row);
+	                    });
+	                })
+	                .catch(error => console.error("Erro ao carregar cotações:", error));
+	        });
 
-                const cellDataCriacao = row.insertCell(2);
-                cellDataCriacao.textContent = cotacao.dataCriacao;
-            });
-        }
+	        // Função para exibir cotações de um representante
+	        function exibirCotacoesPorRepresentante(cotacaoId, nome) {
+	            fetch(`/cotacoes/representante/${cotacaoId}`) // Ajuste a rota conforme necessário
+	                .then(response => response.json())
+	                .then(data => {
+	                    const detalhesDiv = document.getElementById("detalhes-cotacoes");
+	                    detalhesDiv.innerHTML = `<h3>Cotações de ${nome}</h3>`;
+	                    if (data.length === 0) {
+	                        detalhesDiv.innerHTML += "<p>Sem cotações para exibir.</p>";
+	                        return;
+	                    }
 
-        // Carrega as cotações assim que o conteúdo da página for carregado
-        document.addEventListener('DOMContentLoaded', carregarCotacoes);
-    </script>
+	                    const lista = document.createElement("ul");
+	                    data.forEach(cotacao => {
+	                        const item = document.createElement("li");
+	                        item.textContent = `Fabricante: ${cotacao.fabricante}, Preço: R$${cotacao.preco}`;
+	                        lista.appendChild(item);
+	                    });
+	                    detalhesDiv.appendChild(lista);
+	                })
+	                .catch(error => console.error("Erro ao carregar cotações do representante:", error));
+	        }
+	    </script>
 </head>
 <body>
-    <h1>Cotações Ativas</h1>
+    <div class="container mt-5">
+        <h1 class="mb-4">Lista de Cotações</h1>
 
-    <!-- Tabela para exibir as cotações -->
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Status</th>
-                <th>Data de Criação</th>
-            </tr>
-        </thead>
-        <tbody id="tabela-cotacoes">
-            <!-- As cotações serão inseridas aqui via JavaScript -->
-        </tbody>
-    </table>
+        <!-- Botão para cadastrar nova cotação -->
+        <div class="mb-4">
+            <a href="/cotacoes/criar" class="btn btn-primary">Cadastrar Nova Cotação</a>
+        </div>
 
-    <button onclick="window.location.href='/cotacoes/criar'">Criar Nova Cotação</button>
+        <!-- Tabela de Cotações -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Data de Criação</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-cotacoes">
+                <!-- As cotações serão inseridas aqui via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("/cotacoes/listar")
+                .then(response => response.json())
+                .then(data => {
+                    const tabelaCotacoes = document.getElementById("tabela-cotacoes");
+                    tabelaCotacoes.innerHTML = ""; // Limpa a tabela antes de popular
+
+                    data.forEach(cotacao => {
+                        const row = document.createElement("tr");
+                        
+                        row.innerHTML = `
+                            <td>${cotacao.id}</td>
+                            <td>
+                                <a href="#" data-bs-toggle="collapse" data-bs-target="#collapse-${cotacao.id}" aria-expanded="false" aria-controls="collapse-${cotacao.id}">
+                                    ${cotacao.nome}
+                                </a>
+                            </td>
+                            <td>${cotacao.status}</td>
+                            <td>${cotacao.dataCriacao}</td>
+                        `;
+
+                        tabelaCotacoes.appendChild(row);
+
+                        // Accordion row
+                        const accordionRow = document.createElement("tr");
+                        accordionRow.innerHTML = `
+                            <td colspan="4">
+                                <div class="accordion accordion-flush" id="accordion-${cotacao.id}">
+                                    <div class="accordion-item">
+                                        <div id="collapse-${cotacao.id}" class="accordion-collapse collapse" data-bs-parent="#accordion-${cotacao.id}">
+                                            <div class="accordion-body">
+                                                <ul id="lista-representantes-${cotacao.id}">
+                                                    <li>Carregando...</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+
+                        tabelaCotacoes.appendChild(accordionRow);
+
+                        // Carregar cotações do representante ao expandir
+                        document.querySelector(`[data-bs-target="#collapse-${cotacao.id}"]`).addEventListener("click", () => {
+                            const listaRepresentantes = document.getElementById(`lista-representantes-${cotacao.id}`);
+                            if (listaRepresentantes.getAttribute("data-loaded") !== "true") {
+                                fetch(`/cotacoes/representante/${cotacao.id}`)
+                                    .then(response => response.json())
+                                    .then(representantes => {
+                                        listaRepresentantes.innerHTML = ""; // Limpa a lista antes de popular
+                                        representantes.forEach(rep => {
+                                            listaRepresentantes.innerHTML += `<li>${rep.nome} - ${rep.produto} (${rep.preco})</li>`;
+                                        });
+                                        listaRepresentantes.setAttribute("data-loaded", "true");
+                                    })
+                                    .catch(error => {
+                                        listaRepresentantes.innerHTML = "<li>Erro ao carregar representantes.</li>";
+                                        console.error("Erro ao carregar representantes:", error);
+                                    });
+                            }
+                        });
+                    });
+                })
+                .catch(error => console.error("Erro ao carregar as cotações:", error));
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

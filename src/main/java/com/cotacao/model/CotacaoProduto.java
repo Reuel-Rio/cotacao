@@ -1,5 +1,7 @@
 package com.cotacao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,8 +14,15 @@ public class CotacaoProduto {
 
     @ManyToOne
     @JoinColumn(name = "cotacao_id")
+    @JsonIgnore
     private Cotacao cotacao;
 
     @ManyToOne
+    @JsonIgnore
     private Produto produto;
+    
+    @ManyToOne
+    @JoinColumn(name = "representante_id", nullable = false)
+    @JsonIgnore
+    private Representante representante;
 }

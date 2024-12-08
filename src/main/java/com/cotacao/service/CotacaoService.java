@@ -27,10 +27,12 @@ public class CotacaoService {
 
     private final CotacaoRepository cotacaoRepository;
     private final CotacaoProdutoRepository cotacaoProdutoRepository;
+    private final CotacaoProdutoService cotacaoProdutoService;
 
-    public CotacaoService(CotacaoRepository cotacaoRepository, CotacaoProdutoRepository cotacaoProdutoRepository) {
+    public CotacaoService(CotacaoRepository cotacaoRepository, CotacaoProdutoRepository cotacaoProdutoRepository, CotacaoProdutoService cotacaoProdutoService) {
         this.cotacaoRepository = cotacaoRepository;
         this.cotacaoProdutoRepository = cotacaoProdutoRepository;
+        this.cotacaoProdutoService = cotacaoProdutoService;
     }
 
     public Cotacao buscarCotacaoPorId(Long id) {
@@ -38,28 +40,34 @@ public class CotacaoService {
         return cotacao.orElse(null);  // Retorna a cotação encontrada ou null se não encontrada
     }
     
-    public Cotacao criarCotacao(String nomeDaLista, List<String> nomesProdutos) {
-        Cotacao cotacao = new Cotacao();
-        cotacao.setNome(nomeDaLista);
-        cotacao.setDataCriacao(LocalDate.now());
-        cotacao.setStatus(Status.ATIVO);
+    public Cotacao criarCotacao(String nomeCotacao, List<String> nomesProdutos) {
+        // Criar uma nova cotação
+        Cotacao novaCotacao = new Cotacao();
+        novaCotacao.setNome(nomeCotacao);
 
-        Cotacao novaCotacao = cotacaoRepository.save(cotacao);
+        // Salvar a cotação no banco de dados
+        Cotacao cotacaoSalva = cotacaoRepository.save(novaCotacao);
 
+        // Associar os produtos à cotação
         for (String nomeProduto : nomesProdutos) {
             CotacaoProduto cotacaoProduto = new CotacaoProduto();
-            cotacaoProduto.setCotacao(novaCotacao);
-            cotacaoProduto.setProduto(new Produto(nomeProduto.toUpperCase()));
-            cotacaoProdutoRepository.save(cotacaoProduto);
+            cotacaoProduto.getProduto().setNome(nomeProduto.trim().toUpperCase()); // Garantir nomes em maiúsculas
+            cotacaoProduto.setCotacao(cotacaoSalva);
+            cotacaoProdutoService.salvar(cotacaoProduto); // Salvar o produto no banco
         }
 
-        return novaCotacao;
+        return cotacaoSalva;
     }
 
     public List<Cotacao> listarCotasAtivas() {
         return cotacaoRepository.findByStatus(Status.ATIVO);
     }
 
+    public List<CotacaoProduto> listarPorRepresentante(Long representanteId) {
+        return cotacaoProdutoRepository.findByRepresentanteId(representanteId);
+    }
+
+    
     public void consolidarCotacao(Long cotacaoId) {
         Optional<Cotacao> cotacao = cotacaoRepository.findById(cotacaoId);
         if (cotacao.isPresent()) {

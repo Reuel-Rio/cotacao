@@ -2,41 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Criar Cotação</title>
-    <script>
-        async function enviarCotacao() {
-            const nomeCotacao = document.getElementById('nomeCotacao').value;
-            const nomesProdutos = document.getElementById('nomesProdutos').value.split(',');
-
-            const cotacao = {
-                nomeCotacao: nomeCotacao.trim(),
-                nomesProdutos: nomesProdutos.map(produto => produto.trim())
-            };
-
-            const response = await fetch('/cotacoes/criar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(cotacao)
-            });
-
-            if (response.ok) {
-                alert('Cotação criada com sucesso!');
-                window.location.href = '/cotacoes/listar';
-            } else {
-                alert('Erro ao criar a cotação. Tente novamente.');
-            }
-        }
-    </script>
 </head>
 <body>
     <h1>Criar Nova Cotação</h1>
-    <form onsubmit="event.preventDefault(); enviarCotacao();">
+    <form action="/criar" method="post">
         <label for="nomeCotacao">Nome da Cotação:</label>
-        <input type="text" id="nomeCotacao" required><br><br>
+        <input type="text" id="nomeCotacao" name="nomeCotacao" required><br><br>
 
         <label for="nomesProdutos">Produtos (separados por vírgula):</label>
-        <textarea id="nomesProdutos" rows="4" cols="50" required></textarea><br><br>
+        <textarea id="nomesProdutos" name="nomesProdutos" rows="4" cols="50" required></textarea><br><br>
 
         <button type="submit">Criar Cotação</button>
     </form>

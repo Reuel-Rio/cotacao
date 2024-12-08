@@ -1,5 +1,7 @@
 package com.cotacao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,9 +16,11 @@ public class CotacaoRepresentanteProduto {
     private Cotacao cotacao;
 
     @ManyToOne
+    @JsonIgnore
     private Representante representante;
 
     @ManyToOne
+    @JsonIgnore
     private Produto produto;
 
     private Double preco;
