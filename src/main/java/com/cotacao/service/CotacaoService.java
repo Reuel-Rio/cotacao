@@ -28,11 +28,13 @@ public class CotacaoService {
     private final CotacaoRepository cotacaoRepository;
     private final CotacaoProdutoRepository cotacaoProdutoRepository;
     private final CotacaoProdutoService cotacaoProdutoService;
+    private final ProdutoService produtoService;
 
-    public CotacaoService(CotacaoRepository cotacaoRepository, CotacaoProdutoRepository cotacaoProdutoRepository, CotacaoProdutoService cotacaoProdutoService) {
+    public CotacaoService(CotacaoRepository cotacaoRepository, CotacaoProdutoRepository cotacaoProdutoRepository, CotacaoProdutoService cotacaoProdutoService, ProdutoService produtoService) {
         this.cotacaoRepository = cotacaoRepository;
         this.cotacaoProdutoRepository = cotacaoProdutoRepository;
         this.cotacaoProdutoService = cotacaoProdutoService;
+        this.produtoService = produtoService;
     }
 
     public Cotacao buscarCotacaoPorId(Long id) {
@@ -50,10 +52,16 @@ public class CotacaoService {
 
         // Associar os produtos à cotação
         for (String nomeProduto : nomesProdutos) {
+            // Buscar ou criar o produto usando o serviço existente
+            Produto produto = produtoService.saveOrFindProduto(nomeProduto.trim());
+
+            // Criar o vínculo entre cotação e produto
             CotacaoProduto cotacaoProduto = new CotacaoProduto();
-            cotacaoProduto.getProduto().setNome(nomeProduto.trim().toUpperCase()); // Garantir nomes em maiúsculas
+            cotacaoProduto.setProduto(produto);
             cotacaoProduto.setCotacao(cotacaoSalva);
-            cotacaoProdutoService.salvar(cotacaoProduto); // Salvar o produto no banco
+
+            // Salvar o vínculo no banco
+            cotacaoProdutoService.salvar(cotacaoProduto); //dando erro
         }
 
         return cotacaoSalva;

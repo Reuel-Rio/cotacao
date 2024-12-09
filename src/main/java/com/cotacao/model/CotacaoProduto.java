@@ -18,6 +18,7 @@ public class CotacaoProduto {
     private Cotacao cotacao;
 
     @ManyToOne
+    @JoinColumn(name = "produto_id")
     @JsonIgnore
     private Produto produto;
     
