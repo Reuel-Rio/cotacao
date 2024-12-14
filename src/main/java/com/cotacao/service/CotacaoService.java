@@ -17,6 +17,8 @@ import com.cotacao.model.Produto;
 import com.cotacao.repositories.CotacaoProdutoRepository;
 import com.cotacao.repositories.CotacaoRepository;
 
+import jakarta.transaction.Transactional;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -42,6 +44,7 @@ public class CotacaoService {
         return cotacao.orElse(null);  // Retorna a cotação encontrada ou null se não encontrada
     }
     
+    @Transactional
     public Cotacao criarCotacao(String nomeCotacao, List<String> nomesProdutos) {
         // Criar uma nova cotação
         Cotacao novaCotacao = new Cotacao();
@@ -59,6 +62,9 @@ public class CotacaoService {
             CotacaoProduto cotacaoProduto = new CotacaoProduto();
             cotacaoProduto.setProduto(produto);
             cotacaoProduto.setCotacao(cotacaoSalva);
+            cotacaoProduto.setRepresentante(null); 
+
+            System.out.println("Salvando vínculo: Produto - " + produto.getNome() + ", Cotacao - " + cotacaoSalva.getNome());
 
             // Salvar o vínculo no banco
             cotacaoProdutoService.salvar(cotacaoProduto); //dando erro
@@ -69,6 +75,10 @@ public class CotacaoService {
 
     public List<Cotacao> listarCotasAtivas() {
         return cotacaoRepository.findByStatus(Status.ATIVO);
+    }
+    
+    public List<Cotacao> buscarTodas() {
+        return cotacaoRepository.findAll();
     }
 
     public List<CotacaoProduto> listarPorRepresentante(Long representanteId) {

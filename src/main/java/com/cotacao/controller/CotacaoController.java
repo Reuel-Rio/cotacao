@@ -73,21 +73,25 @@ public class CotacaoController {
         }
     }
     
-    // Submeter os produtos para cotação
     @PostMapping("/criar")
     public String submeterCotacao(
             @RequestParam("nomeCotacao") String nomeCotacao,
             @RequestParam("nomesProdutos") String nomesProdutos,
             Model model) {
         try {
-            List<String> listaProdutos = List.of(nomesProdutos.split(","));
-            cotacaoService.criarCotacao(nomeCotacao, listaProdutos); // Delegar ao serviço
+            // Dividir os produtos, ignorando espaços antes e depois das vírgulas
+            List<String> listaProdutos = List.of(nomesProdutos.split("\\s*,\\s*"));
+
+            // Chamar o serviço para criar a cotação
+            cotacaoService.criarCotacao(nomeCotacao, listaProdutos);
+
             model.addAttribute("sucesso", "Cotação criada com sucesso!");
         } catch (Exception e) {
             model.addAttribute("erro", "Erro ao criar a cotação: " + e.getMessage());
         }
         return "redirect:/cotacoes/listar";
     }
+
 
     /**
     @PostMapping("/criar")

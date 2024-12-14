@@ -1,5 +1,7 @@
 package com.cotacao.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.cotacao.model.Representante;
@@ -20,4 +22,9 @@ public class RepresentanteService {
         representante.setPedidoMinimo(pedidoMinimo);
         return representanteRepository.save(representante);
     }
+
+	public List<Representante> buscarTodos() {
+		
+		return representanteRepository.findAll();
+	}
 }

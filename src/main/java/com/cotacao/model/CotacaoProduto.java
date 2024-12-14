@@ -13,17 +13,16 @@ public class CotacaoProduto {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cotacao_id")
+    @JoinColumn(name = "cotacao_id", nullable = false)
     @JsonIgnore
     private Cotacao cotacao;
 
     @ManyToOne
-    @JoinColumn(name = "produto_id")
-    @JsonIgnore
+    @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
     
     @ManyToOne
-    @JoinColumn(name = "representante_id", nullable = false)
+    @JoinColumn(name = "representante_id", nullable = true)
     @JsonIgnore
     private Representante representante;
 }

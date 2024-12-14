@@ -7,8 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.cotacao.model.Cotacao;
 import com.cotacao.model.CotacaoProduto;
 import com.cotacao.service.CotacaoService;
+
+import org.springframework.ui.Model;
+
 
 @Controller
 public class NavigationController {
@@ -16,21 +20,43 @@ public class NavigationController {
 	@Autowired
 	private CotacaoService cotacaoService;
 
-	// Página inicial - Redireciona para a lista de cotações
+	@GetMapping("/")
+    public String paginaInicial(Model model) {
+        // Buscar todas as cotações do banco
+        List<Cotacao> listaCotacoes = cotacaoService.buscarTodas();
+        model.addAttribute("cotacoes", listaCotacoes);
+        return "index"; // Nome do arquivo HTML
+    }
+	/**	
+		// Página inicial - Redireciona para a lista de cotações
 	@GetMapping("/")
 	public String home() {
 		System.out.println("API: / ");
 		System.out.println("HOME: / redirect:/cotacoes/listar");
 		return "redirect:/cotacoes/listar";
 	}
+	*/
 
 	// Página de listagem de cotações
 	@GetMapping("/cotacoes/listar")
-	public String listarCotasAtivas() {
-		System.out.println("API: /cotacoes/listar ");
-		System.out.println("listarCotasAtivas: / listar");
-		return "listar"; // Página que exibe a lista de cotações
+	public String listarCotasAtivas(Model model) {
+	    System.out.println("API: /cotacoes/listar ");
+	    System.out.println("listarCotasAtivas: / listar");
+
+	    // Buscar todas as cotações do banco
+	    List<Cotacao> listaCotacoes = cotacaoService.buscarTodas();
+	    model.addAttribute("cotacoes", listaCotacoes);
+
+	    return "listar"; // Página que exibe a lista de cotações
 	}
+
+	@GetMapping("/cotacoes/detalhes/{id}")
+	public String detalhesCotacao(@PathVariable Long id, Model model) {
+	    Cotacao cotacao = cotacaoService.buscarCotacaoPorId(id);
+	    model.addAttribute("cotacao", cotacao);
+	    return "detalhes"; // Página para mostrar detalhes
+	}
+
 
 	// Página para criar nova cotação
 	@GetMapping("/cotacoes/criar")
