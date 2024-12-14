@@ -1,5 +1,8 @@
 package com.cotacao.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +24,27 @@ public class NavigationController {
 	private CotacaoService cotacaoService;
 
 	@GetMapping("/")
+	public String paginaInicial(Model model) {
+	    // Simulação de dados
+	    List<Cotacao> listaCotacoes = new ArrayList<>();
+	    Cotacao cotacao1 = new Cotacao();
+	    cotacao1.setNome("Cotação de Teste");
+	    cotacao1.setDataCriacao(LocalDate.now());
+	    listaCotacoes.add(cotacao1);
+
+	    model.addAttribute("cotacoes", listaCotacoes);
+	    return "index"; // Nome do arquivo HTML
+	}
+	
+	
+	
+	
+	/**
+	@GetMapping("/")
     public String paginaInicial(Model model) {
         // Buscar todas as cotações do banco
         List<Cotacao> listaCotacoes = cotacaoService.buscarTodas();
+        System.out.println("Lista de Cotações: " + listaCotacoes);
         model.addAttribute("cotacoes", listaCotacoes);
         return "index"; // Nome do arquivo HTML
     }
